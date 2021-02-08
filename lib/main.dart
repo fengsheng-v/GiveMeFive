@@ -1,8 +1,9 @@
 import 'dart:async';
 
+import 'package:audioplayers/audio_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:m_loading/m_loading.dart';
-
+import 'package:audioplayers/audioplayers.dart';
 void main() {
   runApp(MyApp());
 }
@@ -46,6 +47,8 @@ class _MyHomePageState extends State<MyHomePage>
   AnimationStatus _animationState;
   double _animationValue = origin_top;
 
+  AudioPlayer audioPlayer;
+  AudioCache audioCache;
   void _resetState() {
     setState(() {
       _animationValue = origin_top;
@@ -56,6 +59,48 @@ class _MyHomePageState extends State<MyHomePage>
     setState(() {
       isShow = !isShow;
     });
+  }
+
+  play() async {
+    audioPlayer = await audioCache.play("audio/clap.mp3");
+    // audioPlayer.setReleaseMode(ReleaseMode.STOP);
+    // await audioPlayer.play(
+    //   "assets/audio/clap.mp3",isLocal: true
+    // );
+    // if (result == 1) {
+    //   // success
+    //   print('play success');
+    // } else {
+    //   print('play failed');
+    // }
+    print('play success');
+  }
+
+  stop() async {
+    int result = await audioPlayer.release();
+    if (result == 1) {
+      print('stop release');
+    } else {
+      print('stop release');
+    }
+  }
+
+  @override
+  void deactivate() async{
+    print('结束');
+    // int result = await audioPlayer.release();
+    // if (result == 1) {
+    //   print('release success');
+    // } else {
+    //   print('release failed');
+    // }
+    super.deactivate();
+  }
+
+  void initAudioPlayer() async{
+    // audioPlayer = new AudioPlayer();
+    // await audioPlayer.setUrl('assets/audio/clap.mp3',isLocal: true);
+    audioCache = new AudioCache();
   }
 
   @override
@@ -78,6 +123,7 @@ class _MyHomePageState extends State<MyHomePage>
             });
           });
     // #enddocregion addListener
+    initAudioPlayer();
     super.initState();
   }
 
@@ -146,7 +192,6 @@ class _MyHomePageState extends State<MyHomePage>
                         print("search");
                         Timer.periodic(Duration(milliseconds: 1000), (timer) {
                           _haveFind = true;
-
                           ///定时任务
                           timer.cancel();
                           timer = null;
@@ -154,6 +199,7 @@ class _MyHomePageState extends State<MyHomePage>
                           _controller.reset();
                           _controller.forward();
                           print("find");
+                          play();
                           Timer.periodic(Duration(milliseconds: 1000), (timer) {
                             ///定时任务
                             timer.cancel();
@@ -161,6 +207,7 @@ class _MyHomePageState extends State<MyHomePage>
                             _isAnimation = false;
                             _haveFind = false;
                             _resetState();
+                            stop();
                             print("end");
                           });
                         });
