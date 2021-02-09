@@ -36,6 +36,8 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage>
     with SingleTickerProviderStateMixin {
+  String _websocketUrl = 'wss://h1ghf1ve.me/hi5';
+  String _originUrl = 'https://h1ghf1ve.me/';
   bool isShow = false;
   static const double origin_top = 500;
   static const double target_top = 40;
@@ -51,9 +53,9 @@ class _MyHomePageState extends State<MyHomePage>
   Animation<double> _animation;
   AnimationController _controller;
   double _animationValue = origin_top;
-  AudioPlayer audioPlayer;
   String localFilePath = "assets/audios/clap.mp3";
   String handImageUrl = "assets/images/hand.png";
+  AudioPlayer audioPlayer;
   AudioCache audioCache;
 
   void _changeText(status, {String location}) {
@@ -87,7 +89,7 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   play() {
-    audioCache.play(localFilePath,stayAwake: true);
+    audioCache.play(localFilePath, isNotification: true);
     _changeColor(_changedColor);
     print('play success');
   }
@@ -104,8 +106,7 @@ class _MyHomePageState extends State<MyHomePage>
     audioPlayer.onPlayerCompletion.listen((event) {
       print("onPlayerCompletion");
     });
-    audioCache = new AudioCache(
-        prefix: "", fixedPlayer: audioPlayer, respectSilence: true);
+    audioCache = new AudioCache(prefix: "", fixedPlayer: audioPlayer);
     audioCache.load(localFilePath);
   }
 
@@ -148,7 +149,7 @@ class _MyHomePageState extends State<MyHomePage>
   void _sendMessage() {
     _changeText(1);
     WebSocket webSocket;
-    WebSocket.connect('wss://h1ghf1ve.me/hi5').then((WebSocket ws) {
+    WebSocket.connect(_websocketUrl).then((WebSocket ws) {
       webSocket = ws;
       // 调用add方法发送消息
       // 监听接收消息，调用listen方法
@@ -206,7 +207,7 @@ class _MyHomePageState extends State<MyHomePage>
                 ListTile(
                   leading: Icon(Icons.whatshot),
                   title: new Text('来源'),
-                  subtitle: new Text('https://h1ghf1ve.me/'),
+                  subtitle: new Text(_originUrl),
                 )
               ],
             ),
