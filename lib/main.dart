@@ -278,13 +278,12 @@ class _MyHomePageState extends State<MyHomePage>
                   height: 100,
                   alignment: Alignment.center,
                   color: Colors.transparent,
-                  margin: EdgeInsets.all(20.0),
                   child: Text(
                     _curStr,
+                    textAlign:TextAlign.center,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 18.0,
-                      height: 1.2,
                     ),
                   ),
                 ),
