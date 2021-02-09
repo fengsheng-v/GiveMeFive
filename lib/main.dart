@@ -45,6 +45,9 @@ class _MyHomePageState extends State<MyHomePage>
   String _str = 'Waiting for someone to high-five you back.';
   String _haveFindStr = 'You got a high-five from ';
   String _curStr = '';
+  static const Color _originColor = Colors.deepPurple;
+  static const Color _changedColor = Colors.red;
+  Color _curColor = _originColor;
   Animation<double> _animation;
   AnimationController _controller;
   double _animationValue = origin_top;
