@@ -24,7 +24,9 @@ class MessageLookup extends MessageLookupByLibrary {
   final messages = _notInlinedMessages(_notInlinedMessages);
   static _notInlinedMessages(_) => <String, Function> {
     "have_find" : m0,
+    "over_time" : MessageLookupByLibrary.simpleMessage("超时啦!"),
     "prepare_press_hand" : MessageLookupByLibrary.simpleMessage("点击上方手掌按钮击掌"),
+    "source" : MessageLookupByLibrary.simpleMessage("来源"),
     "title" : MessageLookupByLibrary.simpleMessage("掌击"),
     "waiting_for_back" : MessageLookupByLibrary.simpleMessage("正在等待世界上某人应答")
   };

@@ -2,5 +2,7 @@
   "title": "掌击",
   "prepare_press_hand": "点击上方手掌按钮击掌",
   "waiting_for_back": "正在等待世界上某人应答",
-  "have_find": "已经找到来自 {name} 的应答!"
+  "have_find": "已经找到来自 {name} 的应答!",
+  "over_time": "超时啦!",
+  "source": "来源"
 }

@@ -24,7 +24,9 @@ class MessageLookup extends MessageLookupByLibrary {
   final messages = _notInlinedMessages(_notInlinedMessages);
   static _notInlinedMessages(_) => <String, Function> {
     "have_find" : m0,
-    "prepare_press_hand" : MessageLookupByLibrary.simpleMessage("hello~"),
+    "over_time" : MessageLookupByLibrary.simpleMessage("Over Time!"),
+    "prepare_press_hand" : MessageLookupByLibrary.simpleMessage("Press the hand for a live high-five exchange!"),
+    "source" : MessageLookupByLibrary.simpleMessage("source"),
     "title" : MessageLookupByLibrary.simpleMessage("GIVE ME FIVE"),
     "waiting_for_back" : MessageLookupByLibrary.simpleMessage("Waiting for someone to high-five you back.")
   };

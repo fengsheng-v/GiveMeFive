@@ -45,10 +45,10 @@ class S {
     );
   }
 
-  /// `hello~`
+  /// `Press the hand for a live high-five exchange!`
   String get prepare_press_hand {
     return Intl.message(
-      'hello~',
+      'Press the hand for a live high-five exchange!',
       name: 'prepare_press_hand',
       desc: '',
       args: [],
@@ -72,6 +72,26 @@ class S {
       name: 'have_find',
       desc: '',
       args: [name],
+    );
+  }
+
+  /// `Over Time!`
+  String get over_time {
+    return Intl.message(
+      'Over Time!',
+      name: 'over_time',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `source`
+  String get source {
+    return Intl.message(
+      'source',
+      name: 'source',
+      desc: '',
+      args: [],
     );
   }
 }

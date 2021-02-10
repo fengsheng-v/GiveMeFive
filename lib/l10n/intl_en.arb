@@ -1,6 +1,8 @@
 {
   "title": "GIVE ME FIVE",
-  "prepare_press_hand": "hello~",
+  "prepare_press_hand": "Press the hand for a live high-five exchange!",
   "waiting_for_back": "Waiting for someone to high-five you back.",
-  "have_find": "You got a high-five from {name}!"
+  "have_find": "You got a high-five from {name}!",
+  "over_time": "Over Time!",
+  "source": "source"
 }

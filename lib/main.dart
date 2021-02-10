@@ -19,12 +19,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: S.of(context).title,
+      title: "GIVE ME FIVE",
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MyHomePage(title: S.of(context).title),
+      home: MyHomePage(title:"GIVE ME FIVE"),
       builder: EasyLoading.init(),
       localizationsDelegates: [
         // 本地化的代理类
@@ -44,7 +44,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage({Key key,this.title}) : super(key: key);
 
   final String title;
 
@@ -53,7 +53,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage>
-    with SingleTickerProviderStateMixin {
+    with WidgetsBindingObserver,SingleTickerProviderStateMixin {
   String _websocketUrl = 'wss://h1ghf1ve.me/hi5';
   String _originUrl = 'https://h1ghf1ve.me/';
   bool isShow = false;
@@ -72,6 +72,8 @@ class _MyHomePageState extends State<MyHomePage>
   String handImageUrl = "assets/images/hand.png";
   AudioPlayer audioPlayer;
   AudioCache audioCache;
+  WebSocket webSocket;
+  Timer c_timer;
 
   void _reset() {
     _changeText(0);
@@ -79,16 +81,20 @@ class _MyHomePageState extends State<MyHomePage>
     _resetHandPosition();
     _changeLoadingState(false);
     _isAnimation = false;
+    if(c_timer!=null){
+      c_timer.cancel();
+      c_timer = null;
+    }
   }
 
   void _changeText(status, {String location}) {
     setState(() {
       if (status == 0) {
-        _curStr = S.of(context).prepare_press_hand;
+        _curStr = S.current.prepare_press_hand;
       } else if (status == 1) {
-        _curStr = S.of(context).waiting_for_back;
+        _curStr = S.current.waiting_for_back;
       } else {
-        _curStr = S.of(context).have_find(location);
+        _curStr = S.current.have_find(location);
       }
     });
   }
@@ -129,7 +135,7 @@ class _MyHomePageState extends State<MyHomePage>
     audioPlayer.onPlayerCompletion.listen((event) {
       print("onPlayerCompletion");
     });
-    audioCache = new AudioCache(prefix: "", fixedPlayer: audioPlayer);
+    audioCache = new AudioCache(prefix: "", fixedPlayer: audioPlayer,respectSilence:true);
     audioCache.load(localFilePath);
   }
 
@@ -154,10 +160,29 @@ class _MyHomePageState extends State<MyHomePage>
     initAudioPlayer();
     _changeText(0);
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    print("$state -------");
+    if (state == AppLifecycleState.paused) {
+      // do sth
+      if (webSocket != null) webSocket.close();
+      _reset();
+    }
+  }
+
+  @override
+  void deactivate(){
+    print("-------");
+    super.deactivate();
+  }
+
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     audioPlayer.dispose();
     super.dispose();
   }
@@ -171,9 +196,18 @@ class _MyHomePageState extends State<MyHomePage>
 
   void _sendMessage() {
     _changeText(1);
-    WebSocket webSocket;
     // 设置超时时间
     bool haveDone = false;
+    c_timer =Timer.periodic(Duration(seconds: 30), (timer) {
+      ///定时任务
+      timer.cancel();
+      timer = null;
+      if (!haveDone){
+        if (webSocket != null) webSocket.close();
+        _reset();
+        EasyLoading.showToast(S.current.over_time,duration: Duration(milliseconds: 800));
+      }
+    });
     WebSocket.connect(_websocketUrl).then((WebSocket ws) {
       webSocket = ws;
       // 调用add方法发送消息
@@ -184,6 +218,8 @@ class _MyHomePageState extends State<MyHomePage>
         print('onDone:' + webSocket.closeReason);
         if (webSocket.closeReason.indexOf("hi5") != -1) {
           haveDone = true;
+          c_timer.cancel();
+          c_timer = null;
           _changeText(2, location: webSocket.closeReason.split("::")[1]);
           haveFind();
         }
@@ -193,14 +229,6 @@ class _MyHomePageState extends State<MyHomePage>
       var str = "hi5:" + getRandomString(6);
       print('发送消息:' + str);
       webSocket.add(str);
-    });
-    Timer.periodic(Duration(seconds: 3), (timer) {
-      ///定时任务
-      timer.cancel();
-      timer = null;
-      if (!haveDone) if (webSocket != null) webSocket.close();
-      _reset();
-      EasyLoading.showToast('超时啦!');
     });
   }
 
@@ -235,7 +263,6 @@ class _MyHomePageState extends State<MyHomePage>
     final size = MediaQuery.of(context).size;
     final width = size.width;
     final height = size.height;
-    print(width);
     return Theme(
         data: ThemeData(primarySwatch: _curColor),
         child: Scaffold(
@@ -244,7 +271,7 @@ class _MyHomePageState extends State<MyHomePage>
               children: <Widget>[
                 ListTile(
                   leading: Icon(Icons.whatshot),
-                  title: new Text('来源'),
+                  title: new Text("来源"),
                   subtitle: new Text(_originUrl),
                 )
               ],
