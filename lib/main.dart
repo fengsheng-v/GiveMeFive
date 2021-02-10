@@ -29,14 +29,11 @@ class MyApp extends StatelessWidget {
       localizationsDelegates: [
         // 本地化的代理类
         GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
         S.delegate
       ],
       supportedLocales: [
         const Locale('en', 'US'), // 美国英语
         const Locale('zh', 'CN'), // 中文简体
-        ...S.delegate.supportedLocales
         //其它Locales
       ]
     );
@@ -61,6 +58,9 @@ class _MyHomePageState extends State<MyHomePage>
   static const double target_top = 40;
   bool _isAnimation = false;
   bool _haveFind = false;
+  String _starStr = S.of(this.).prepare_press_hand;
+  String _str = 'Waiting for someone to high-five you back.';
+  String _haveFindStr = 'You got a high-five from ';
   String _curStr = '';
   static const Color _originColor = Colors.deepPurple;
   static const Color _changedColor = Colors.red;
@@ -84,11 +84,11 @@ class _MyHomePageState extends State<MyHomePage>
   void _changeText(status, {String location}) {
     setState(() {
       if (status == 0) {
-        _curStr = S.of(context).prepare_press_hand;
+        _curStr = _starStr;
       } else if (status == 1) {
-        _curStr = S.of(context).waiting_for_back;
+        _curStr = _str;
       } else {
-        _curStr = S.of(context).have_find(location);
+        _curStr = _haveFindStr + location + "!";
       }
     });
   }
