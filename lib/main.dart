@@ -3,8 +3,12 @@ import 'dart:math';
 import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:m_loading/m_loading.dart';
 import 'dart:io';
+
+import 'generated/l10n.dart';
 
 void main() {
   runApp(MyApp());
@@ -15,12 +19,26 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'GIVE ME FIVE',
+      title: S.of(context).title,
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MyHomePage(title: 'GIVE ME FIVE'),
+      home: MyHomePage(title: S.of(context).title),
+      builder: EasyLoading.init(),
+      localizationsDelegates: [
+        // 本地化的代理类
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        S.delegate
+      ],
+      supportedLocales: [
+        const Locale('en', 'US'), // 美国英语
+        const Locale('zh', 'CN'), // 中文简体
+        ...S.delegate.supportedLocales
+        //其它Locales
+      ]
     );
   }
 }
@@ -43,9 +61,6 @@ class _MyHomePageState extends State<MyHomePage>
   static const double target_top = 40;
   bool _isAnimation = false;
   bool _haveFind = false;
-  String _starStr = 'Press the hand for a live high-five exchange!';
-  String _str = 'Waiting for someone to high-five you back.';
-  String _haveFindStr = 'You got a high-five from ';
   String _curStr = '';
   static const Color _originColor = Colors.deepPurple;
   static const Color _changedColor = Colors.red;
@@ -58,14 +73,22 @@ class _MyHomePageState extends State<MyHomePage>
   AudioPlayer audioPlayer;
   AudioCache audioCache;
 
+  void _reset() {
+    _changeText(0);
+    _changeColor(_originColor);
+    _resetHandPosition();
+    _changeLoadingState(false);
+    _isAnimation = false;
+  }
+
   void _changeText(status, {String location}) {
     setState(() {
       if (status == 0) {
-        _curStr = _starStr;
+        _curStr = S.of(context).prepare_press_hand;
       } else if (status == 1) {
-        _curStr = _str;
+        _curStr = S.of(context).waiting_for_back;
       } else {
-        _curStr = _haveFindStr + location + "!";
+        _curStr = S.of(context).have_find(location);
       }
     });
   }
@@ -76,15 +99,15 @@ class _MyHomePageState extends State<MyHomePage>
     });
   }
 
-  void _resetState() {
+  void _resetHandPosition() {
     setState(() {
       _animationValue = origin_top;
     });
   }
 
-  void _changeLoadingState() {
+  void _changeLoadingState(bool show) {
     setState(() {
-      isShow = !isShow;
+      isShow = show;
     });
   }
 
@@ -149,6 +172,8 @@ class _MyHomePageState extends State<MyHomePage>
   void _sendMessage() {
     _changeText(1);
     WebSocket webSocket;
+    // 设置超时时间
+    bool haveDone = false;
     WebSocket.connect(_websocketUrl).then((WebSocket ws) {
       webSocket = ws;
       // 调用add方法发送消息
@@ -158,6 +183,7 @@ class _MyHomePageState extends State<MyHomePage>
       }, onDone: () {
         print('onDone:' + webSocket.closeReason);
         if (webSocket.closeReason.indexOf("hi5") != -1) {
+          haveDone = true;
           _changeText(2, location: webSocket.closeReason.split("::")[1]);
           haveFind();
         }
@@ -168,11 +194,19 @@ class _MyHomePageState extends State<MyHomePage>
       print('发送消息:' + str);
       webSocket.add(str);
     });
+    Timer.periodic(Duration(seconds: 3), (timer) {
+      ///定时任务
+      timer.cancel();
+      timer = null;
+      if (!haveDone) if (webSocket != null) webSocket.close();
+      _reset();
+      EasyLoading.showToast('超时啦!');
+    });
   }
 
   void haveFind() {
     _haveFind = true;
-    _changeLoadingState();
+    _changeLoadingState(false);
     _controller.reset();
     _controller.forward();
     print("find");
@@ -189,7 +223,7 @@ class _MyHomePageState extends State<MyHomePage>
       timer = null;
       _isAnimation = false;
       _haveFind = false;
-      _resetState();
+      _resetHandPosition();
       stop();
       print("end");
       _changeText(0);
@@ -198,6 +232,10 @@ class _MyHomePageState extends State<MyHomePage>
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final width = size.width;
+    final height = size.height;
+    print(width);
     return Theme(
         data: ThemeData(primarySwatch: _curColor),
         child: Scaffold(
@@ -238,7 +276,7 @@ class _MyHomePageState extends State<MyHomePage>
                       ),
                     ),
                     Positioned(
-                      right: 60,
+                      right: width / 2 - 180,
                       top: _haveFind ? _animation.value : _animationValue,
                       height: 300,
                       width: 300,
@@ -265,7 +303,7 @@ class _MyHomePageState extends State<MyHomePage>
                           onPressed: () {
                             if (_isAnimation) return;
                             _isAnimation = true;
-                            _changeLoadingState();
+                            _changeLoadingState(true);
                             print("search");
                             _sendMessage();
                           },
@@ -280,7 +318,7 @@ class _MyHomePageState extends State<MyHomePage>
                   color: Colors.transparent,
                   child: Text(
                     _curStr,
-                    textAlign:TextAlign.center,
+                    textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 18.0,

@@ -1,0 +1,6 @@
+{
+  "title": "GIVE ME FIVE",
+  "prepare_press_hand": "hello~",
+  "waiting_for_back": "Waiting for someone to high-five you back.",
+  "have_find": "You got a high-five from {name}!"
+}
