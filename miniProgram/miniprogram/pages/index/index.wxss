@@ -1,21 +1,20 @@
-/**index.wxss**/
-.userinfo {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.top_container {
+  position: absolute;
 }
 
-.userinfo-avatar {
-  width: 128rpx;
-  height: 128rpx;
-  margin: 20rpx;
-  border-radius: 50%;
+.top_container_action{
+  position: relative;
+  left: 50rpx;
+  top: 50rpx;
 }
 
-.userinfo-nickname {
-  color: #aaa;
+.button_class{
+  position: absolute;
+  height: 500rpx;
+  background-color: rgba(255, 255, 255, 0);
 }
 
-.usermotto {
-  margin-top: 200px;
+.text_style{
+  margin: 100rpx;
+  color: white;
 }
